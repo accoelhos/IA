@@ -8,7 +8,7 @@ from tql import QLearningAgentTabular
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--env_name", type=str, default="Taxi-v3", help="Environment name.")
-    parser.add_argument("--successful_episode_reward_value", type=int, help="Reward value received by the agent when it reaches the end of an episode.")
+    parser.add_argument("--successful_episode_reward_value", required=True, type=int, help="Reward value received by the agent when it reaches the end of an episode.")
     args = parser.parse_args()
 
     # Load the agent
