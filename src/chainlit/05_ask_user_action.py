@@ -13,5 +13,9 @@ async def main():
 
     if res and res.get("payload").get("value") == "continue":
         await cl.Message(
-            content="Continue!",
+            content="Continue pressed!",
+        ).send()
+    else:
+        await cl.Message(
+            content="Cancel pressed!",
         ).send()
