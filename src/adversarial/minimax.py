@@ -58,19 +58,6 @@ def best_move(game):
 
 # Minimax with Heuristic Evaluation
 def minimax_with_dls(game, depth, maximizing, player, evaluate_fn):
-    '''
-    Implementa o algoritmo Minimax com função de avaliação heurística.
-
-    Ela avalia o estado atual do jogo e retorna a pontuação heurística para o jogador atual.
-    O algoritmo considera todas as jogadas possíveis e simula os resultados,
-    alternando entre os jogadores, até atingir a profundidade especificada ou encontrar um vencedor.
-    
-    :param game: Instância do jogo Connect Four
-    :param depth: Profundidade da busca Minimax
-    :param maximizing: Booleano que indica se o jogador atual está maximizando ou minimizando a pontuação
-    :param player: Jogador atual ('X' ou 'O')
-    :return: Pontuação heurística para o jogador atual
-    '''
     winner = game.winner()
     if winner == player:
         return 10000

@@ -11,27 +11,6 @@ from helper_functions import print_board
 
 # Heuristic Evaluation Function
 def evaluate_connect_four(board, player):
-    ''' 
-    Essa função calcula uma pontuação heurística de um tabuleiro 
-    do jogo Connect Four para um jogador específico (`'X'` ou `'O'`). 
-    Essa pontuação representa o quão favorável o estado atual do jogo é para o jogador
-    analisado, levando em conta possíveis vitórias e ameaças do oponente.
-
-    A função define internamente outra função chamada `evaluate_window`, que recebe uma 
-    sequência de quatro casas (uma "janela") e retorna um valor baseado na configuração 
-    das peças nessa janela. Se a janela contém quatro peças do jogador, ela retorna 1000 pontos (vitória imediata); 
-    três peças e uma casa vazia valem 50 pontos; duas peças e duas casas vazias valem 10 pontos. 
-    Se o oponente tem três peças e uma casa vazia (ameaça de vitória), a função penaliza com −80 pontos.
-
-    O restante da função percorre todas as possíveis janelas de quatro posições 
-    no tabuleiro: horizontais, verticais e diagonais (ambas as direções). 
-    Para cada janela, ela aplica a função `evaluate_window` e acumula o valor retornado na variável `score`. 
-    O valor final representa uma estimativa quantitativa da vantagem do jogador no estado atual.
-    
-    :param board: 2D array representing the game board
-    :param player: Current player ('X' or 'O')
-    :return: Score for the player
-    '''
     opponent = 'O' if player == 'X' else 'X'
     score = 0
 
@@ -46,23 +25,36 @@ def evaluate_connect_four(board, player):
             return -80
         return 0
 
-    for r in range(ROWS):
-        for c in range(COLS - 3):
-            score += evaluate_window(list(board[r, c:c + 4]))
+    rows = len(board)
+    cols = len(board[0])
 
-    for r in range(ROWS - 3):
-        for c in range(COLS):
-            score += evaluate_window([board[r + i][c] for i in range(4)])
+    # Avaliar janelas horizontais
+    for r in range(rows):
+        for c in range(cols - 3):
+            window = board[r][c:c+4]
+            score += evaluate_window(window)
 
-    for r in range(ROWS - 3):
-        for c in range(COLS - 3):
-            score += evaluate_window([board[r + i][c + i] for i in range(4)])
+    # Avaliar janelas verticais
+    for r in range(rows - 3):
+        for c in range(cols):
+            window = [board[r+i][c] for i in range(4)]
+            score += evaluate_window(window)
 
-    for r in range(3, ROWS):
-        for c in range(COLS - 3):
-            score += evaluate_window([board[r - i][c + i] for i in range(4)])
+    # Avaliar janelas diagonais \
+    for r in range(rows - 3):
+        for c in range(cols - 3):
+            window = [board[r+i][c+i] for i in range(4)]
+            score += evaluate_window(window)
+
+    # Avaliar janelas diagonais /
+    for r in range(3, rows):
+        for c in range(cols - 3):
+            window = [board[r-i][c+i] for i in range(4)]
+            score += evaluate_window(window)
 
     return score
+
+
 
 # AI Move Selector
 def best_move(game, depth=4):
