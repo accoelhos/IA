@@ -56,8 +56,24 @@ def best_move(game):
 
     return best_action
 
-# Minimax with Heuristic Evaluation
-def minimax_with_dls(game, depth, maximizing, player, evaluate_fn):
+# Minimax with Heuristic Evaluation Function
+'''
+Essa função implementa o algoritmo Minimax com uma função de avaliação heurística.
+Ela avalia o estado atual do jogo e retorna um valor que representa a qualidade desse estado
+para o jogador atual.
+
+A função de avaliação heurística deve ser definida externamente e passada como argumento. Ela deve 
+retornar um valor numérico que representa a qualidade do estado do jogo para o jogador atual. 
+Quanto maior o valor, melhor o estado para o jogador atual.
+
+:param game: Instância do jogo com o estado atual do tabuleiro.
+:param depth: Profundidade da busca Minimax.
+:param maximizing: Indica se o jogador atual está tentando maximizar (True) ou minimizar (False) o valor.
+:param player: O jogador atual ('X' ou 'O').
+:param evaluate_fn: Função de avaliação heurística que avalia o estado do jogo.
+:return: Valor numérico representando a qualidade do estado do jogo. 
+'''
+def minimax_with_hef(game, depth, maximizing, player, evaluate_fn):
     winner = game.winner()
     if winner == player:
         return 10000
@@ -71,7 +87,7 @@ def minimax_with_dls(game, depth, maximizing, player, evaluate_fn):
         for move in game.available_moves():
             new_game = game.copy()
             new_game.make_move(move)
-            val = minimax_with_dls(new_game, depth - 1, False, player, evaluate_fn)
+            val = minimax_with_hef(new_game, depth - 1, False, player, evaluate_fn)
             best = max(best, val)
         return best
     else:
@@ -79,6 +95,6 @@ def minimax_with_dls(game, depth, maximizing, player, evaluate_fn):
         for move in game.available_moves():
             new_game = game.copy()
             new_game.make_move(move)
-            val = minimax_with_dls(new_game, depth - 1, True, player, evaluate_fn)
+            val = minimax_with_hef(new_game, depth - 1, True, player, evaluate_fn)
             best = min(best, val)
         return best

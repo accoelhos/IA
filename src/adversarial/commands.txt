@@ -1,2 +1,2 @@
-python adversarial/connect_four_minimax_with_dls.py
+python adversarial/connect_four_minimax_with_hef.py
 python adversarial/connect_four_mcts.py

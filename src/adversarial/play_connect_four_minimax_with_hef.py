@@ -4,7 +4,7 @@ from colorama import Fore, Style, init
 # Reinitialize colorama after reset
 init(autoreset=True)
 
-from minimax import minimax_with_dls
+from minimax import minimax_with_hef
 from connect_four import ConnectFour, ROWS, COLS
 
 from helper_functions import print_board
@@ -74,7 +74,7 @@ def best_move(game, depth=4):
         new_game = game.copy()
         new_game.make_move(move)
         # score = minimax_with_dls(new_game, depth - 1, False, player)
-        score = minimax_with_dls(
+        score = minimax_with_hef(
             game=new_game,
             depth=depth - 1,
             maximizing=False,
