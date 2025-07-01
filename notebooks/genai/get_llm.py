@@ -6,7 +6,7 @@ def get_llm(model_backend="ollama", model_name=None):
             model=model_name or "gpt-3.5-turbo"
         )
     elif model_backend == "ollama":
-        from langchain_community.chat_models import ChatOllama
+        from langchain_ollama import ChatOllama
         return ChatOllama(
             temperature=0,
             model=model_name or "gemma3:latest"
