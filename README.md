@@ -2,12 +2,12 @@
 
 Este ambiente reúne todas as bibliotecas necessárias para os trabalhos práticos sobre agentes com LLMs, reconhecimento de entidades nomeadas (NER), e visualizações.
 
-## ✅ Requisitos
+## Requisitos
 
 - Python 3.10 ou 3.11 (recomendado)
 - Conda ou virtualenv instalado
 
-## 🔧 Criação do ambiente com conda
+## Criação do ambiente com conda
 
 ```bash
 conda create -n gcc1734 python=3.10
@@ -34,12 +34,4 @@ Opcional: verifique se o modelo foi instalado corretamente:
 
 ```bash
 python -m spacy validate
-```
-
-## 🚀 Execução de notebooks
-
-Se desejar usar notebooks Jupyter:
-
-```bash
-jupyter notebook
 ```

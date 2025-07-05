@@ -2,13 +2,15 @@ import os
 import chainlit as cl
 from langchain_community.document_loaders import PyPDFLoader, UnstructuredHTMLLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.llms import Ollama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document # Importar Document para criar documentos fictícios
+from langchain_ollama import OllamaLLM
+from langchain_ollama import OllamaEmbeddings
+
 
 # --- 1. Configurações Iniciais ---
 # Nome do modelo LLM no Ollama que será usado (certifique-se de que está puxado)
@@ -23,8 +25,8 @@ EMBEDDING_MODEL = "nomic-embed-text"
 async def start():
     # Mensagem de boas-vindas para o usuário
     await cl.Message(
-        content=f"Olá! Eu sou um assistente especializado na Norma 175 e Ofícios CVM. "
-                f"Pergunte-me algo sobre esses tópicos. (Usando LLM: {LLM_MODEL})"
+        content=f"Olá! Eu sou um assistente especializado na Norma 175 e Ofícios CVM.\n"
+                f"Pergunte-me algo sobre esses tópicos."
     ).send()
 
     # --- 3. Carregar e Processar Documentos Fictícios (para Demonstração) ---
@@ -83,7 +85,7 @@ async def start():
 
     # --- 5. Configurar o LLM Local (Gemma via Ollama) ---
     print(f"Inicializando o LLM '{LLM_MODEL}' via Ollama...")
-    llm = Ollama(model=LLM_MODEL)
+    llm = OllamaLLM(model=LLM_MODEL)
     print("LLM inicializado.")
 
     # --- 6. Construir a Cadeia RAG (Retrieval Augmented Generation) ---
@@ -140,19 +142,16 @@ async def main(message: cl.Message):
     if "context" in response:
         sources = response["context"]
         if sources:
-            source_elements = []
-            for source_idx, source in enumerate(sources):
-                # Formata a fonte para exibição
-                source_name = source.metadata.get("source", f"Fonte Desconhecida {source_idx+1}")
-                page_info = source.metadata.get("page", "N/A")
-                source_elements.append(
-                    await cl.Element(
-                        name=f"Fonte {source_idx+1}: {source_name} (Pág. {page_info})",
-                        content=source.page_content,
-                        display="inline"
-                    )
-                )
-            await cl.Message(
-                content="**Fontes utilizadas:**",
-                elements=source_elements
-            ).send()
+            await cl.Message(content="Fontes utilizadas:").send()
+
+            unique_sources = {}
+            for source in sources:
+                key = (source.metadata.get("source"), source.metadata.get("page"))
+                if key not in unique_sources:
+                    unique_sources[key] = source.page_content
+
+            for idx, ((src_name, page), content) in enumerate(unique_sources.items(), start=1):
+                message_text = f"Fonte {idx}: {src_name} (Pág. {page})\n\n{content}"
+                await cl.Message(content=message_text).send()
+
+

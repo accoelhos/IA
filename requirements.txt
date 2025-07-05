@@ -1,34 +1,34 @@
 # LangChain e LLMs
-langchain>=0.1.20
-openai>=1.30.0
-ollama>=0.1.7
-langchain_ollama>=0.3.3
-langhcain_community
-langgraph>=0.0.38
-chainlit>=1.0.0
+langchain==0.3.26
+openai==1.93.0
+ollama==0.5.1
+langchain_ollama==0.3.3
+langchain_community==0.3.27
+langgraph==0.5.1
+chainlit==2.6.0
 
 # Visualização e manipulação de dados
-matplotlib>=3.8.4
-numpy>=1.26.4
-pandas>=2.2.2
-seaborn>=0.13.2
-chromadb
+matplotlib==3.10.3
+numpy==2.2.6
+pandas==2.3.0
+seaborn==0.13.2
+chromadb==1.0.15
 
 # Machine Learning e NLP
-scikit-learn>=1.4.2
-scipy>=1.13.1
-spacy>=3.7.4
-seqeval>=1.2.2
-transformers>=4.41.1
+scikit-learn==1.7.0
+scipy==1.15.3
+spacy==3.8.7
+seqeval==1.2.2
+transformers==4.53.1
 
 # Deep Learning
-torch>=2.3.0
+torch==2.7.1
 
 # Gym para ambientes RL
-gymnasium>=0.29.1
+gymnasium==1.2.0
 
 # Utilitários
-ipython>=8.24.0
-jupyter>=1.0.0
-requests>=2.31.0
-tqdm>=4.66.4
+ipython==8.37.0
+jupyter==1.1.1
+requests==2.32.4
+tqdm==4.67.1

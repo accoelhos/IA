@@ -64,6 +64,5 @@ if __name__ == "__main__":
     # Você pode baixar uma imagem qualquer e renomeá-la.
     # Por exemplo, baixe a imagem do cachorro do link acima e salve-a como 'minha_imagem_teste.jpg'
     
-    # Substitua 'minha_imagem_teste.jpg' pelo caminho real do seu arquivo local
     caminho_imagem_local = "./img/cachorros-no-carro.jpg" 
-    gerar_legenda_imagem_blip(caminho_imagem_local) # Descomente para testar este exemplo
+    gerar_legenda_imagem_blip(caminho_imagem_local)
