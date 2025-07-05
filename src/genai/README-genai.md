@@ -1,6 +1,6 @@
-# Projeto com LangChain, LLMs e Visualização
+# Exemplos de IA Generativa
 
-Este projeto integra ferramentas de IA generativa (como LangChain, BLIP, Ollama) com bibliotecas de visualização, machine learning e deep learning. Também inclui uma interface interativa com o **Chainlit**.
+Esta pasta apresenta exemplos de IA generativa (com LangChain, BLIP, Ollama). Também inclui uma interface interativa com o **Chainlit**.
 
 ---
 
