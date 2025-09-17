@@ -112,8 +112,31 @@ def depthFirstSearch(problem):
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+     # Pilha para DFS
+    frontier = util.Stack()
+    # Cada nó = (estado, caminho até aqui)
+    frontier.push((problem.getStartState(), []))
+    visited = set()
+
+    while not frontier.isEmpty():
+        state, path = frontier.pop()
+
+        if state in visited:
+            continue
+        visited.add(state)
+
+        # Objetivo alcançado
+        if problem.isGoalState(state):
+            return path
+
+        # Expansão do nó
+        for successor, action, _ in problem.expand(state):
+            if successor not in visited:
+                new_path = path + [action]
+                frontier.push((successor, new_path))
+
+    # Caso não encontre solução
+    return []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
