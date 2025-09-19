@@ -18,6 +18,8 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+from util import Queue
+
 
 class SearchProblem:
     """
@@ -140,8 +142,31 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # Fila para controlar a fronteira
+    frontier = Queue()
+    frontier.push((problem.getStartState(), []))
+    
+    # Conjunto de estados visitados
+    visited = set()
+    
+    while not frontier.isEmpty():
+        state, path = frontier.pop()
+        
+        # Verifica se é objetivo
+        if problem.isGoalState(state):
+            return path
+        
+        if state not in visited:
+            visited.add(state)
+            
+            # Expande sucessores
+            for successor, action, _ in problem.expand(state):
+                if successor not in visited:
+                    frontier.push((successor, path + [action]))
+    
+    return []
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -152,8 +177,34 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Fila de prioridade para A*
+    frontier = util.PriorityQueue()
+    start_state = problem.getStartState()
+    # Cada nó = (estado, caminho até aqui, custo acumulado)
+    frontier.push((start_state, [], 0), heuristic(start_state, problem))
+    visited = dict()  # estado: menor custo encontrado
+
+    while not frontier.isEmpty():
+        state, path, cost = frontier.pop()
+
+        # Se já visitou com custo menor, ignora
+        if state in visited and visited[state] <= cost:
+            continue
+        visited[state] = cost
+
+        # Objetivo alcançado
+        if problem.isGoalState(state):
+            return path
+
+        # Expansão do nó
+        for successor, action, step_cost in problem.expand(state):
+            new_cost = cost + step_cost
+            if successor not in visited or visited[successor] > new_cost:
+                priority = new_cost + heuristic(successor, problem)
+                frontier.push((successor, path + [action], new_cost), priority)
+
+    # Caso não encontre solução
+    return []
 
 
 # Abbreviations

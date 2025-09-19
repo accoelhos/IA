@@ -307,22 +307,26 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
+
+        # Estado inicial: posição do Pacman e tupla de cantos visitados (vazio)
+        self._startState = (self.startingPosition, tuple())
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Retorna o estado inicial
+        return self._startState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Estado: (posição, cantos_visitados)
+        pos, visited = state
+        # Objetivo: todos os cantos visitados
+        return len(visited) == 4
 
     def expand(self, state):
         """
@@ -339,7 +343,9 @@ class CornersProblem(search.SearchProblem):
         for action in self.getActions(state):
             # Add a child state to the child list if the action is legal
             # You should call getActions, getActionCost, and getNextState.
-            "*** YOUR CODE HERE ***"
+            next_state = self.getNextState(state, action)
+            cost = self.getActionCost(state, action, next_state)
+            children.append((next_state, action, cost))
 
         self._expanded += 1 # DO NOT CHANGE
         return children
@@ -366,10 +372,13 @@ class CornersProblem(search.SearchProblem):
         x, y = state[0]
         dx, dy = Actions.directionToVector(action)
         nextx, nexty = int(x + dx), int(y + dy)
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-        # you will need to replace the None part of the following tuple.
-        return ((nextx, nexty), None)
+        visited = set(state[1])
+        next_pos = (nextx, nexty)
+        # Se chegou em um canto, adiciona aos visitados
+        if next_pos in self.corners:
+            visited.add(next_pos)
+        # Estado: (nova posição, cantos visitados como tupla ordenada)
+        return (next_pos, tuple(sorted(visited)))
 
     def getCostOfActionSequence(self, actions):
         """
