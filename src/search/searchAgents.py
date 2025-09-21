@@ -286,132 +286,171 @@ def euclideanHeuristic(position, problem, info={}):
 # This portion is incomplete.  Time to write code!  #
 #####################################################
 
-class CornersProblem(search.SearchProblem):
-    """
-    This search problem finds paths through all four corners of a layout.
+# Questao 4 - CornersProblem
 
-    You must select a suitable state space and child function
-    """
+class CornersProblem(search.SearchProblem):  #! QUESTAO 4
 
     def __init__(self, startingGameState):
         """
-        Stores the walls, pacman's starting position and corners.
+        Inicializa o problema:
+        - Armazena as paredes do labirinto
+        - Define posição inicial do Pacman
+        - Define os cantos do labirinto
         """
-        self.walls = startingGameState.getWalls()
-        self.startingPosition = startingGameState.getPacmanPosition()
+        self.walls = startingGameState.getWalls()  # Matriz de paredes
+        self.startingPosition = startingGameState.getPacmanPosition()  # Posição inicial do Pacman
+
+        # Define os cantos (inferior esquerdo, superior esquerdo, inferior direito, superior direito)
         top, right = self.walls.height-2, self.walls.width-2
         self.corners = ((1,1), (1,top), (right, 1), (right, top))
+
+        # Alerta caso algum canto não tenha comida (opcional)
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
-        self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
-        # Please add any code here which you would like to use
-        # in initializing the problem
 
-        # Estado inicial: posição do Pacman e tupla de cantos visitados (vazio)
-        self._startState = (self.startingPosition, tuple())
+        self._expanded = 0  # Contador de nós expandidos
+        self.startingGameState = startingGameState  # Guardamos referência do estado do jogo
 
     def getStartState(self):
         """
-        Returns the start state (in your state space, not the full Pacman state
-        space)
+        Retorna o estado inicial do problema.
+        Aqui, o estado é uma tupla:
+        (posição atual do Pacman, cantos visitados)
         """
-        # Retorna o estado inicial
-        return self._startState
+        return (self.startingPosition, ())  # Nenhum canto visitado no início
 
     def isGoalState(self, state):
         """
-        Returns whether this search state is a goal state of the problem.
+        Retorna True se todos os quatro cantos já foram visitados.
         """
-        # Estado: (posição, cantos_visitados)
-        pos, visited = state
-        # Objetivo: todos os cantos visitados
-        return len(visited) == 4
+        _, visitedCorners = state
+        return len(visitedCorners) == 4
 
     def expand(self, state):
         """
-        Returns child states, the actions they require, and a cost of 1.
-
-         As noted in search.py:
-            For a given state, this should return a list of triples, (child,
-            action, stepCost), where 'child' is a child to the current
-            state, 'action' is the action required to get there, and 'stepCost'
-            is the incremental cost of expanding to that child
+        Gera todos os filhos do estado atual:
+        - Para cada ação possível, calcula a próxima posição
+        - Atualiza cantos visitados
+        - Retorna lista de tuplas (nextState, action, cost)
         """
-
         children = []
-        for action in self.getActions(state):
-            # Add a child state to the child list if the action is legal
-            # You should call getActions, getActionCost, and getNextState.
-            next_state = self.getNextState(state, action)
-            cost = self.getActionCost(state, action, next_state)
-            children.append((next_state, action, cost))
+        currentPosition, visitedCorners = state
 
-        self._expanded += 1 # DO NOT CHANGE
+        for action in self.getActions(state):  # Pega todas ações válidas
+            nextPosition = self.getNextPosition(currentPosition, action)  # Próxima posição do Pacman
+
+            # Se for um canto ainda não visitado, adiciona aos visitados
+            if nextPosition in self.corners and nextPosition not in visitedCorners:
+                newVisited = visitedCorners + (nextPosition,)
+            else:
+                newVisited = visitedCorners
+
+            # Garantir que os cantos visitados sejam únicos e ordenados
+            newVisited = tuple(sorted(set(newVisited)))
+            nextState = (nextPosition, newVisited)  # Próximo estado completo
+            children.append((nextState, action, 1))  # Adiciona à lista de filhos (custo = 1)
+
+        self._expanded += 1  # Incrementa contador de nós expandidos
         return children
 
     def getActions(self, state):
+        """
+        Retorna todas ações possíveis a partir do estado atual, 
+        considerando as paredes.
+        """
         possible_directions = [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]
         valid_actions_from_state = []
+
+        x, y = state[0]  # Posição atual
         for action in possible_directions:
-            x, y = state[0]
-            dx, dy = Actions.directionToVector(action)
+            dx, dy = Actions.directionToVector(action)  # Converte direção em vetor (dx, dy)
             nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
-                valid_actions_from_state.append(action)
+
+            if not self.walls[nextx][nexty]:  # Checa se não bate na parede
+                valid_actions_from_state.append(action)  # Ação válida
+
         return valid_actions_from_state
 
     def getActionCost(self, state, action, next_state):
+        """
+        Retorna o custo da ação. Aqui, todas as ações têm custo 1.
+        """
         assert next_state == self.getNextState(state, action), (
             "Invalid next state passed to getActionCost().")
         return 1
-
-    def getNextState(self, state, action):
-        assert action in self.getActions(state), (
-            "Invalid action passed to getActionCost().")
-        x, y = state[0]
+    
+    def getNextPosition(self, position, action):
+        """
+        Calcula a próxima posição do Pacman a partir da posição atual e da ação.
+        Não altera os cantos visitados.
+        """
+        x, y = position
         dx, dy = Actions.directionToVector(action)
         nextx, nexty = int(x + dx), int(y + dy)
-        visited = set(state[1])
-        next_pos = (nextx, nexty)
-        # Se chegou em um canto, adiciona aos visitados
-        if next_pos in self.corners:
-            visited.add(next_pos)
-        # Estado: (nova posição, cantos visitados como tupla ordenada)
-        return (next_pos, tuple(sorted(visited)))
+        return (nextx, nexty)
+
+    def getNextState(self, state, action):
+        """
+        Calcula o próximo estado completo:
+        - Nova posição do Pacman
+        - Atualiza cantos visitados caso chegue em um canto
+        """
+        currentPosition, visitedCorners = state
+        nextPosition = self.getNextPosition(currentPosition, action)
+
+        # Adiciona canto visitado, se ainda não estiver na lista
+        if nextPosition in self.corners and nextPosition not in visitedCorners:
+            newVisited = visitedCorners + (nextPosition,)
+        else:
+            newVisited = visitedCorners
+
+        # Mantém os cantos visitados únicos e ordenados
+        newVisited = tuple(sorted(set(newVisited)))
+        return (nextPosition, newVisited)
 
     def getCostOfActionSequence(self, actions):
         """
-        Returns the cost of a particular sequence of actions.  If those actions
-        include an illegal move, return 999999.  This is implemented for you.
+        Calcula o custo total de uma sequência de ações.
+        Se alguma ação for ilegal (bate na parede), retorna um valor grande.
         """
         if actions == None: return 999999
-        x,y= self.startingPosition
+        x, y = self.startingPosition
+
         for action in actions:
             dx, dy = Actions.directionToVector(action)
             x, y = int(x + dx), int(y + dy)
-            if self.walls[x][y]: return 999999
-        return len(actions)
+            if self.walls[x][y]: return 999999  # Movimento ilegal
 
+        return len(actions)  # Custo = número de passos
 
-def cornersHeuristic(state, problem):
+# Questao 5 - Heurística para CornersProblem 
+def cornersHeuristic(state, problem):  #! QUESTAO 5
     """
-    A heuristic for the CornersProblem that you defined.
-
-      state:   The current search state
-               (a data structure you chose in your search problem)
-
-      problem: The CornersProblem instance for this layout.
-
-    This function should always return a number that is a lower bound on the
-    shortest path from the state to a goal of the problem; i.e.  it should be
-    admissible (as well as consistent).
+    Heurística para o CornersProblem.
+    Estima o menor custo restante para visitar todos os cantos ainda não visitados.
+    Considerando apenas a distância até o canto mais distante não visitado.
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    from util import manhattanDistance  # distância de Manhattan
+
+    # position é a posição atual do Pacman (x, y)
+    # visitedCorners é a tupla com os cantos já visitados
+    position, visitedCorners = state
+
+    # cria uma lista com os cantos que ainda não foram visitados
+    unvisited = [corner for corner in problem.corners if corner not in visitedCorners]
+
+    # se todos os cantos já foram visitados, não há custo restante
+    if not unvisited:
+        return 0
+
+    # distância de Manhattan de posição atual até cada canto não visitado
+    # e retorna a maior dessas distâncias
+    # estimativa do custo restante para visitar todos os cantos
+    return max(manhattanDistance(position, corner) for corner in unvisited)
+
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

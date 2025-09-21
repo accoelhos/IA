@@ -101,6 +101,8 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
+# Questao 1 - DFS
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -140,6 +142,7 @@ def depthFirstSearch(problem):
     # Caso não encontre solução
     return []
 
+# Questao 2 - BFS
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     
@@ -175,6 +178,7 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+# Questao 3 - A*
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     # Fila de prioridade para A*

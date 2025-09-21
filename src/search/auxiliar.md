@@ -144,7 +144,7 @@ python autograder.py -q q3
 **Concluindo:**
 A busca A* é uma das estratégias mais poderosas para encontrar caminhos ótimos em problemas de busca, combinando custo real e estimativa heurística para eficiência e qualidade de solução.
 
-## Q4 - CornersProblem (Encontrando todos os cantos)
+## Q4 - Encontrando todos os cantos
 
 **Descrição:**
 O objetivo do CornersProblem é encontrar o menor caminho que passe pelos quatro cantos do labirinto, independentemente de haver comida neles. O estado deve ser representado de forma abstrata, sem incluir informações irrelevantes como fantasmas ou comida extra.
@@ -163,28 +163,54 @@ O objetivo do CornersProblem é encontrar o menor caminho que passe pelos quatro
 3. O nó filho é adicionado à fronteira com custo 1.
 4. O processo se repete até que todos os cantos tenham sido visitados.
 
-**Características:**
-- A representação do estado é eficiente e não inclui informações desnecessárias.
-- O uso de tuplas/conjuntos imutáveis permite fácil verificação de estados já visitados.
-- O problema pode ser resolvido com BFS, mas heurísticas podem acelerar a busca com A*.
 
 **Testando:**
 ```
 python pacman.py -l tinyCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
 python pacman.py -l mediumCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
 ```
-Verifique a corretude com:
+corretude com:
 ```
 python autograder.py -q q4
 ```
+## Q5 - Heurística para o Problema dos Cantos
 
-**Perguntas respondidas:**
-- Qual a representação do estado? Uma tupla com a posição atual e os cantos visitados.
-- Precisa guardar GameState inteiro? Não, apenas posição e cantos visitados.
-- O caminho ótimo sempre vai para o canto mais próximo primeiro? Não necessariamente, depende do layout.
+**Descrição:**  
+A heurística do CornersProblem estima o menor custo restante para o Pacman visitar todos os cantos ainda não visitados. O objetivo é fornecer ao algoritmo A* uma estimativa eficiente que ajude a reduzir o número de nós expandidos.
 
-**Concluindo:**
-O CornersProblem exemplifica a importância de uma boa modelagem de estado e mostra como a busca pode ser aplicada a problemas mais complexos, sendo base para o uso de heurísticas mais avançadas com A*.
+**Como foi implementado:**  
+- A heurística recebe o estado atual do Pacman, representado como `((x, y), cantos_visitados)`.  
+- Cria uma lista de cantos ainda não visitados a partir do estado.  
+- Se todos os cantos já foram visitados, retorna 0.  
+- Caso contrário, existem duas formas comuns de estimar o custo restante:
+  1. **Distância máxima até o canto mais distante:**  
+     - Calcula a distância de Manhattan da posição atual até cada canto não visitado.  
+     - Retorna a maior distância como estimativa do custo restante.
+  2. **Caminho sequencial pelos cantos mais próximos:**  
+     - Enquanto houver cantos não visitados, sempre vai para o canto mais próximo, somando as distâncias de Manhattan.  
+     - Retorna a soma total como estimativa do custo restante.  
+- A heurística é **admissível**, ou seja, nunca superestima o custo real.  
+- É usada pelo A* para priorizar estados que provavelmente levam ao objetivo mais rapidamente.
+
+**Funcionamento passo a passo:**  
+1. Recebe o estado atual (posição e cantos visitados).  
+2. Identifica os cantos que ainda não foram visitados.  
+3. Calcula uma estimativa do custo restante usando a estratégia escolhida (distância máxima ou caminho pelo canto mais próximo).  
+4. Retorna esse valor como heurística para o A*.  
+
+**Testando:**  
+
+```
+python pacman.py -l mediumCorners -p AStarCornersAgent -z 0.5
+```
+
+**Corretude:**
+
+```
+python autograder.py -q q5
+```
+
+
 
 
 
