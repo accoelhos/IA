@@ -210,7 +210,118 @@ python pacman.py -l mediumCorners -p AStarCornersAgent -z 0.5
 python autograder.py -q q5
 ```
 
+## Q6 - Comendo todas as pílulas
 
+**Descrição:**
+O objetivo é encontrar o menor caminho que faça o Pacman comer toda a comida disponível no labirinto.  
+O estado é representado pela posição atual do Pacman e pela grade de comidas restantes.  
+A solução deve considerar apenas a posição do Pacman, as paredes e a localização dos pontos de comida — fantasmas ou outros elementos não interferem nesse problema.
+
+**Como foi implementado:**
+- O estado é uma tupla `(position, foodGrid)`, onde:
+  - `position` é a coordenada atual `(x, y)` do Pacman,
+  - `foodGrid` é uma estrutura booleana que indica onde ainda existe comida.
+- A heurística `foodHeuristic` utiliza a função `mazeDistance` para calcular a distância real (considerando paredes) entre a posição atual do Pacman e os pontos de comida ainda não visitados.
+- O valor retornado pela heurística é a maior distância entre o Pacman e qualquer ponto de comida restante.
+
+**Funcionamento passo a passo:**
+1. Se não há mais comida, retorna `0`.
+2. Caso contrário, percorre todos os pontos de comida ainda existentes no `foodGrid`.
+3. Para cada ponto de comida, calcula a distância de labirinto (`mazeDistance`) até a posição atual.
+4. Retorna a maior dessas distâncias como estimativa de custo restante.
+
+**Justificativa:**
+- A heurística é **admissível**, pois a maior distância até um ponto de comida nunca superestima o custo real: o Pacman precisará pelo menos andar essa distância.
+- A heurística é **consistente**, já que `mazeDistance` respeita a desigualdade triangular.
+- Essa abordagem é mais precisa que Manhattan Distance, embora possa ser mais custosa computacionalmente.
+
+**Testando:**
+
+```
+python pacman.py -l trickySearch -p AStarFoodSearchAgent
+```
+
+**Corretude:**
+
+```
+python autograder.py -q q6
+```
+
+## Q7 - Busca subótima
+
+**Descrição:**
+O objetivo desta questão é implementar um agente guloso que sempre vai em direção à pílula (comida) mais próxima.  
+Diferente de uma busca ótima (como A*), esse agente não garante o menor caminho global, mas encontra soluções rapidamente, mesmo em labirintos grandes.  
+A implementação se baseia em completar a função `findPathToClosestDot` no `ClosestDotSearchAgent` e o teste de objetivo (`isGoalState`) na classe `AnyFoodSearchProblem`.
+
+**Como foi implementado:**
+- A função `findPathToClosestDot` cria uma instância de `AnyFoodSearchProblem` e usa **Busca em Largura (BFS)** para encontrar o menor caminho até a comida mais próxima.
+- O `AnyFoodSearchProblem` é uma variação do `PositionSearchProblem`, mas com objetivo diferente:
+  - O estado inicial é a posição atual do Pacman.
+  - O objetivo (`isGoalState`) é verdadeiro se o estado atual contém comida.
+- O processo se repete até que não haja mais comida no labirinto, concatenando os caminhos encontrados em uma lista de ações.
+
+**Funcionamento passo a passo:**
+1. O agente verifica se ainda há comida no estado atual.
+2. Enquanto houver comida:
+   - Cria um problema `AnyFoodSearchProblem`.
+   - Resolve esse problema com **BFS**, retornando o caminho até a comida mais próxima.
+   - Adiciona esse caminho à lista de ações do agente.
+   - Atualiza o estado atual do Pacman.
+3. Quando não houver mais comida, o agente termina.
+
+**Limitação:**  
+Esse agente é **míope**: ele sempre escolhe a comida mais próxima, mas isso pode levar a um caminho total mais longo do que o ótimo.  
+
+**Testando:**
+
+```
+python pacman.py -l bigSearch -p ClosestDotSearchAgent -z .5
+```
+
+**Corretude:**
+
+```
+python autograder.py -q q7
+```
+
+## Q8 - Problema de busca (problema dos jarros)
+
+**Descrição:**
+O objetivo é encontrar uma sequência de ações que leva a 2 litros no jarro de 4 litros, partindo de qualquer configuração inicial. Há dois jarros:
+- J4: capacidade de 4 litros
+- J3: capacidade de 3 litros
+- manipular esses jarros usando movimentos como encher, esvaziar ou despejar de um jarro para o outro.
+
+**Como foi implementado:**
+- Cada estado é representado pela classe `TwoJarsState`, que armazena a quantidade de água em cada jarro.
+- Movimentos válidos (`legalMoves`) incluem:
+  - Encher um jarro (`fillJ4`, `fillJ3`)
+  - Esvaziar um jarro (`emptyJ4`, `emptyJ3`)
+  - Despejar de um jarro para o outro (`pourJ4intoJ3`, `pourJ3intoJ4`)
+- A função `result` retorna um **novo estado** após aplicar um movimento.
+- O estado é considerado objetivo se o jarro de 4 litros tiver exatamente 2 litros (`isGoal`).
+- A classe `TwoJarsSearchProblem` implementa o `SearchProblem` padrão:
+  - `getStartState()` retorna o estado inicial
+  - `isGoalState()` verifica se o objetivo foi atingido
+  - `expand()` gera filhos aplicando todos os movimentos legais
+  - `getActionCost()` sempre retorna 1 por movimento
+
+**Funcionamento passo a passo:**
+1. Inicializa o problema com uma configuração inicial dos jarros.
+2. Usa BFS (ou outro algoritmo de busca) para expandir estados válidos, aplicando os movimentos legais.
+3. Verifica a meta em cada estado expandido.
+4. Retorna a sequência de movimentos que leva ao jarro de 4 litros contendo 2 litros de água.
+
+**Testando:**
+```python
+start_state = createRandomTwoJarsState(8)
+print('A random initial state:')
+print(start_state)
+
+problem = TwoJarsSearchProblem(start_state)
+path = search.breadthFirstSearch(problem)
+print('BFS found a path of %d moves: %s' % (len(path), str(path)))
 
 
 

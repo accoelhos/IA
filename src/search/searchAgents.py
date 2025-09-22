@@ -535,39 +535,34 @@ class AStarFoodSearchAgent(SearchAgent):
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
-
-def foodHeuristic(state, problem):
+    
+# Questao 6 - Heurística para FoodSearchProblem
+def foodHeuristic(state, problem): 
     """
-    Your heuristic for the FoodSearchProblem goes here.
-
-    This heuristic must be consistent to ensure correctness.  First, try to come
-    up with an admissible heuristic; almost all admissible heuristics will be
-    consistent as well.
-
-    If using A* ever finds a solution that is worse than uniform cost search finds,
-    your heuristic is *not* consistent, and probably not admissible!  On the
-    other hand, inadmissible or inconsistent heuristics may find optimal
-    solutions, so be careful.
-
-    The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a Grid
-    (see game.py) of either True or False. You can call foodGrid.asList() to get
-    a list of food coordinates instead.
-
-    If you want access to info like walls, capsules, etc., you can query the
-    problem.  For example, problem.walls gives you a Grid of where the walls
-    are.
-
-    If you want to *store* information to be reused in other calls to the
-    heuristic, there is a dictionary called problem.heuristicInfo that you can
-    use. For example, if you only want to count the walls once and store that
-    value, try: problem.heuristicInfo['wallCount'] = problem.walls.count()
-    Subsequent calls to this heuristic can access
-    problem.heuristicInfo['wallCount']
+    Heurística para o FoodSearchProblem.
+    Essa solução é mais demorada pois o mazeDistance roda um BFS para cada comida.
     """
+
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
 
+    # lista de coordenadas da comida que ainda não foi comida
+    foodList = foodGrid.asList()
+
+    # se não há comida restante, custo é zero (estado objetivo)
+    if not foodList:
+        return 0
+
+    # calcula a maior distância real (mazeDistance) entre a posição atual e qualquer comida
+    # isso é melhor que Manhattan simples, porque leva em conta paredes do labirinto
+    maxDistance = 0
+    for food in foodList:
+        dist = mazeDistance(position, food, problem.startingGameState)
+        if dist > maxDistance:
+            maxDistance = dist
+
+    return maxDistance
+
+# Questo 7 - Busca subótima
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):
@@ -587,53 +582,34 @@ class ClosestDotSearchAgent(SearchAgent):
 
     def findPathToClosestDot(self, gameState):
         """
-        Returns a path (a list of actions) to the closest dot, starting from
-        gameState.
+        Retorna um caminho (lista de ações) até a comida mais próxima,
+        começando a partir de gameState.
         """
-        # Here are some useful elements of the startState
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        from search import breadthFirstSearch
+        return breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
-    A search problem for finding a path to any food.
-
-    This search problem is just like the PositionSearchProblem, but has a
-    different goal test, which you need to fill in below.  The state space and
-    child function do not need to be changed.
-
-    The class definition above, AnyFoodSearchProblem(PositionSearchProblem),
-    inherits the methods of the PositionSearchProblem.
-
-    You can use this search problem to help you fill in the findPathToClosestDot
-    method.
+    Problema de busca para encontrar um caminho até qualquer comida.
     """
-
     def __init__(self, gameState):
-        "Stores information from the gameState.  You don't need to change this."
-        # Store the food for later reference
+        # Guarda a grade de comida para referência
         self.food = gameState.getFood()
 
-        # Store info for the PositionSearchProblem (no need to change this)
+        # Configurações herdadas do PositionSearchProblem
         self.walls = gameState.getWalls()
         self.startState = gameState.getPacmanPosition()
         self.costFn = lambda x: 1
-        self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
+        self._visited, self._visitedlist, self._expanded = {}, [], 0 # NÃO ALTERAR
 
     def isGoalState(self, state):
         """
-        The state is Pacman's position. Fill this in with a goal test that will
-        complete the problem definition.
+        Um estado é objetivo se a posição atual contém comida.
         """
-        x,y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        x, y = state
+        return self.food[x][y]  # True se houver comida nessa posição
 
 def mazeDistance(point1, point2, gameState):
     """
