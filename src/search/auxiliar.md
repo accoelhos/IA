@@ -56,7 +56,7 @@ python pacman.py -l bigMaze -z .5 -p SearchAgent
 - Verificar a corretude:
 ```python autograder.py -q q1```
 
-**Concluindo: ** esse algoritmo é eficiente para explorar áreas profundass, mas não é adequado para encontrar o menor caminho em labirintos muito complexos.
+**Concluindo:** esse algoritmo é eficiente para explorar áreas profundass, mas não é adequado para encontrar o menor caminho em labirintos muito complexos.
 
 ## Q2 - BFS
 
@@ -97,10 +97,15 @@ python eightpuzzle.py
 
 **Perguntas respondidas:**
 - A solução é ótima? Sim, a BFS sempre encontra o menor caminho possível (em número de ações) quando todos os custos são iguais.
-- Para o quebra-cabeças, quantas ações compõem a solução encontrada pelo BFS? O número de ações depende do estado inicial, mas será sempre o mínimo possível para resolver o problema.
+- Para o quebra-cabeças, quantas ações compõem a solução encontrada pelo BFS? 3  O número de ações depende do estado inicial, mas será sempre o mínimo possível para resolver o problema.
 
 **Concluindo:**
 A BFS é adequada para encontrar caminhos mínimos em problemas de custo uniforme, sendo mais eficiente que o DFS para esse objetivo, embora possa consumir mais memória em problemas muito grandes.
+
+**Corretude:** 
+
+``python autograder.py -q q2``
+
 
 ## Q3 - A*
 
@@ -127,7 +132,7 @@ A BFS é adequada para encontrar caminhos mínimos em problemas de custo uniform
 - É geralmente mais eficiente que a busca de custo uniforme, pois usa a heurística para "guiar" a busca.
 - O uso do dicionário de visitados garante que não há expansão desnecessária de estados já explorados com custo menor.
 
-**Testando:**
+**Testando com distância de Manhattan:**
 ```
 python pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
 ```
@@ -178,25 +183,24 @@ python autograder.py -q q4
 **Descrição:**  
 A heurística do CornersProblem estima o menor custo restante para o Pacman visitar todos os cantos ainda não visitados. O objetivo é fornecer ao algoritmo A* uma estimativa eficiente que ajude a reduzir o número de nós expandidos.
 
-**Como foi implementado:**  
-- A heurística recebe o estado atual do Pacman, representado como `((x, y), cantos_visitados)`.  
-- Cria uma lista de cantos ainda não visitados a partir do estado.  
-- Se todos os cantos já foram visitados, retorna 0.  
-- Caso contrário, existem duas formas comuns de estimar o custo restante:
-  1. **Distância máxima até o canto mais distante:**  
-     - Calcula a distância de Manhattan da posição atual até cada canto não visitado.  
-     - Retorna a maior distância como estimativa do custo restante.
-  2. **Caminho sequencial pelos cantos mais próximos:**  
-     - Enquanto houver cantos não visitados, sempre vai para o canto mais próximo, somando as distâncias de Manhattan.  
-     - Retorna a soma total como estimativa do custo restante.  
-- A heurística é **admissível**, ou seja, nunca superestima o custo real.  
-- É usada pelo A* para priorizar estados que provavelmente levam ao objetivo mais rapidamente.
+**Implementação:**
+- entrada: `state = ((x, y), cantos_visitados)` e `problem` (objeto CornersProblem).
+- extrai `position` (posição atual do Pacman) e `visitedCorners` (tupla dos cantos já visitados).
+- constrói `unvisited`, a lista dos cantos que ainda não foram visitados (comparando `problem.corners` com `visitedCorners`).
+- se `unvisited` estiver vazia, retorna `0`.
+- caso contrário, calcula para cada canto em `unvisited` a **distância de Manhattan** entre `position` e o canto.
+- retorna o **maior** valor entre essas distâncias (ou seja, `max(manhattanDistance(position, corner) for corner in unvisited)`).
 
-**Funcionamento passo a passo:**  
-1. Recebe o estado atual (posição e cantos visitados).  
-2. Identifica os cantos que ainda não foram visitados.  
-3. Calcula uma estimativa do custo restante usando a estratégia escolhida (distância máxima ou caminho pelo canto mais próximo).  
-4. Retorna esse valor como heurística para o A*.  
+**Por que essa escolha:**  
+- a heurística devolve a distância até o canto mais distante não visitado. Isso é admissível porque, independentemente da ordem em que os cantos restantes serão visitados, o agente precisará percorrer pelo menos a distância até chegar a esse canto mais distante.  
+- a heurística é consistente, pois a desigualdade triangular é satisfeita quando se usa distância de Manhattan como estimativa básica para movimento em grade.
+
+**Funcionamento passo a passo (o que o código faz):**
+1. receber o estado atual `(position, visitedCorners)`;
+2. construir `unvisited = [corner for corner in problem.corners if corner not in visitedCorners]`;
+3. se `unvisited` for vazio → retornar `0`;
+4. senão → para cada `corner` em `unvisited` computar `manhattanDistance(position, corner)` e retornar o maior desses valores.
+
 
 **Testando:**  
 
@@ -271,7 +275,7 @@ A implementação se baseia em completar a função `findPathToClosestDot` no `C
 3. Quando não houver mais comida, o agente termina.
 
 **Limitação:**  
-Esse agente é **míope**: ele sempre escolhe a comida mais próxima, mas isso pode levar a um caminho total mais longo do que o ótimo.  
+Esse agente nem sempre encontrará o caminho mais curto possível pelo labirinto, pois ele sempre escolhe a comida mais próxima, podendo levar a um caminho total mais longo. Exemplo a seguir.
 
 **Testando:**
 
@@ -309,19 +313,12 @@ O objetivo é encontrar uma sequência de ações que leva a 2 litros no jarro d
 
 **Funcionamento passo a passo:**
 1. Inicializa o problema com uma configuração inicial dos jarros.
-2. Usa BFS (ou outro algoritmo de busca) para expandir estados válidos, aplicando os movimentos legais.
+2. Usa BFS para expandir estados válidos, aplicando os movimentos legais.
 3. Verifica a meta em cada estado expandido.
 4. Retorna a sequência de movimentos que leva ao jarro de 4 litros contendo 2 litros de água.
 
-**Testando:**
-```python
-start_state = createRandomTwoJarsState(8)
-print('A random initial state:')
-print(start_state)
+**Executar o arquivo para testar**
 
-problem = TwoJarsSearchProblem(start_state)
-path = search.breadthFirstSearch(problem)
-print('BFS found a path of %d moves: %s' % (len(path), str(path)))
 
 
 

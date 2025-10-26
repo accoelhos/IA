@@ -118,13 +118,16 @@ def depthFirstSearch(problem):
     """
      # Pilha para DFS
     frontier = util.Stack()
-    # Cada nó = (estado, caminho até aqui)
+    # inserindo cada nó
+    # cada nó é uma tupla (estado, caminho)
     frontier.push((problem.getStartState(), []))
     visited = set()
 
+    # enquanto houver nós na fronteira a serem explorados
     while not frontier.isEmpty():
+        # removendo o nó do topo da pilha
         state, path = frontier.pop()
-
+        # ignorando estados já visitados
         if state in visited:
             continue
         visited.add(state)
@@ -135,8 +138,10 @@ def depthFirstSearch(problem):
 
         # Expansão do nó
         for successor, action, _ in problem.expand(state):
+            # atualizando o caminho percorrido
             if successor not in visited:
                 new_path = path + [action]
+                # adiciona o novo nó na pilha para exploração
                 frontier.push((successor, new_path))
 
     # Caso não encontre solução
@@ -146,28 +151,30 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     
-    # Fila para controlar a fronteira
+    # fila para controlar a fronteira (estrutura fifo da bfs)
     frontier = Queue()
+    # adiciona o estado inicial com caminho vazio
     frontier.push((problem.getStartState(), []))
-    
-    # Conjunto de estados visitados
+    # conjunto para armazenar os estados visitados e evitar revisitas
     visited = set()
-    
+    # enquanto houver nós na fronteira
     while not frontier.isEmpty():
+        # remove o primeiro nó da fila (mais antigo) para explorar
         state, path = frontier.pop()
-        
-        # Verifica se é objetivo
+        # verifica se o estado atual é o objetivo
         if problem.isGoalState(state):
-            return path
-        
+            return path  # retorna o caminho de ações até o objetivo
+        # se ainda não visitamos
         if state not in visited:
+            # marca como visitado
             visited.add(state)
-            
-            # Expande sucessores
+            # expande o nó atual gerando seus sucessores
             for successor, action, _ in problem.expand(state):
+                # se o sucessor ainda não foi visitado, adiciona na fila
                 if successor not in visited:
+                    # adiciona o sucessor com o caminho atualizado
                     frontier.push((successor, path + [action]))
-    
+
     return []
 
 
@@ -181,33 +188,47 @@ def nullHeuristic(state, problem=None):
 # Questao 3 - A*
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    # Fila de prioridade para A*
+    
+    # fila de prioridade usada pelo algoritmo a* (prioriza menor custo total g + h)
     frontier = util.PriorityQueue()
     start_state = problem.getStartState()
-    # Cada nó = (estado, caminho até aqui, custo acumulado)
+    
+    # adiciona o estado inicial com caminho vazio e custo zero
+    # a prioridade inicial é apenas a heuristica do estado inicial
     frontier.push((start_state, [], 0), heuristic(start_state, problem))
-    visited = dict()  # estado: menor custo encontrado
-
+    
+    # dicionario
+    visited = dict()
+    
+    # enquanto houver nós na fronteira
     while not frontier.isEmpty():
+        # remove o nó com menor prioridade (menor custo total estimado)
         state, path, cost = frontier.pop()
 
-        # Se já visitou com custo menor, ignora
+        # se este estado já foi visitado com custo menor ou igual, ignora
         if state in visited and visited[state] <= cost:
             continue
+        
+        # registra o custo atual como o menor conhecido para este estado
         visited[state] = cost
 
-        # Objetivo alcançado
+        # verifica se o estado atual é o objetivo
         if problem.isGoalState(state):
-            return path
-
-        # Expansão do nó
+            return path  # retorna o caminho de ações até o objetivo
+        
+        # expande o nó atual gerando seus sucessores
         for successor, action, step_cost in problem.expand(state):
+            # calcula o novo custo acumulado até o sucessor
             new_cost = cost + step_cost
+            
+            # se o sucessor ainda não foi visitado ou encontramos um custo menor
             if successor not in visited or visited[successor] > new_cost:
+                # calcula a prioridade como g(n) + h(n)
                 priority = new_cost + heuristic(successor, problem)
+                # adiciona o sucessor na fronteira com caminho atualizado e nova prioridade
                 frontier.push((successor, path + [action], new_cost), priority)
 
-    # Caso não encontre solução
+    # se a fronteira esvaziar sem encontrar solução, retorna caminho vazio
     return []
 
 

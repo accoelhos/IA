@@ -288,7 +288,7 @@ def euclideanHeuristic(position, problem, info={}):
 
 # Questao 4 - CornersProblem
 
-class CornersProblem(search.SearchProblem):  #! QUESTAO 4
+class CornersProblem(search.SearchProblem):
 
     def __init__(self, startingGameState):
         """
@@ -310,7 +310,7 @@ class CornersProblem(search.SearchProblem):  #! QUESTAO 4
                 print('Warning: no food in corner ' + str(corner))
 
         self._expanded = 0  # Contador de nós expandidos
-        self.startingGameState = startingGameState  # Guardamos referência do estado do jogo
+        self.startingGameState = startingGameState  # Guarda referência do estado do jogo
 
     def getStartState(self):
         """
