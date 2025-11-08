@@ -15,7 +15,8 @@ if __name__ == "__main__":
     agent = QLearningAgentTabular.load_agent(args.env_name + "-tql-agent.pkl")
 
     # Render the agent solving the problem
-    def render_agent(env, q_table, episodes=1, max_steps=100):
+    # Adicionado "agent_wrapper" como parâmetro
+    def render_agent(env, agent_wrapper, q_table, episodes=1, max_steps=100):
         """Render the agent solving the problem using the learned Q-table."""
         for episode in range(episodes):
             state, _ = env.reset()
@@ -25,9 +26,15 @@ if __name__ == "__main__":
             env.render()
 
             while not done and step_count < max_steps:
-                action = np.argmax(q_table[state])  # Choose the best action
+                
+                #  Converter o 'state' (tupla) para 'state_id' (int)
+                state_id = agent_wrapper.get_state_id(state)
+                
+                # Usar o 'state_id' para consultar a q_table
+                action = np.argmax(q_table[state_id])  # Choose the best action
+                
                 next_state, reward, terminated, truncated, _ = env.step(action)
-                state = next_state
+                state = next_state # 'state' continua sendo a tupla para a próxima iteração
                 done = terminated or truncated
                 step_count += 1
 
@@ -46,6 +53,8 @@ if __name__ == "__main__":
     env = gym.make(args.env_name, render_mode='human' if render else None)
 
     print("\nRendering the agent solving the problem...")
-    render_agent(env, agent.q_table, episodes=3)  # Render 3 episodes
+    
+    # Passar o "agent.env" (o wrapper) para a função
+    render_agent(env, agent.env, agent.q_table, episodes=3)  # Render 3 episodes
 
     env.close()

@@ -7,10 +7,14 @@ from tql import QLearningAgentTabular
 
 from taxi_environment import TaxiEnvironment
 from blackjack_environment import BlackjackEnvironment
+from cliffwalking_environment import CliffWalkingEnvironment
+from frozenlake_environment import FrozenLakeEnvironment
 
 environment_dict = {
     "Blackjack-v1": BlackjackEnvironment,
-    "Taxi-v3": TaxiEnvironment
+    "Taxi-v3": TaxiEnvironment,
+    "CliffWalking-v1": CliffWalkingEnvironment,
+    "FrozenLake-v1": FrozenLakeEnvironment
 }
 
 if __name__ == "__main__":
