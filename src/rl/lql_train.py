@@ -8,9 +8,16 @@ from gymnasium.wrappers import TimeLimit
 from taxi_environment import TaxiEnvironment
 from blackjack_environment import BlackjackEnvironment
 
+from cliffwalking_environment import CliffWalkingEnvironment
+from frozenlake_environment import FrozenLakeEnvironment
+from mountaincar_environment import MountainCarEnvironment 
+
 environment_dict = {
     "Blackjack-v1": BlackjackEnvironment,
-    "Taxi-v3": TaxiEnvironment
+    "Taxi-v3": TaxiEnvironment,
+    "CliffWalking-v1": CliffWalkingEnvironment,
+    "FrozenLake-v1": FrozenLakeEnvironment,
+    "MountainCar-v0": MountainCarEnvironment
 }
 
 if __name__ == "__main__":
@@ -18,9 +25,9 @@ if __name__ == "__main__":
     parser.add_argument("--num_episodes", type=int, default=10000, help="Number of episodes")
     parser.add_argument("--max_steps", type=int, default=200, help="Maximum number of steps per training episode")
     parser.add_argument("--env_name", type=str, default="Taxi-v3", help="Environment name")
-    parser.add_argument("--epsilon_decay_rate", type=float, default=0.0001, help="Decay rate for the exploration rate")
-    parser.add_argument("--learning_rate", type=float, default=0.1, help="Learning rate")
-    parser.add_argument("--gamma", type=float, default=0.9, help="Gamma")
+    parser.add_argument("--epsilon_decay_rate", type=float, default=0.001, help="Decay rate for the exploration rate")
+    parser.add_argument("--learning_rate", type=float, default=0.01, help="Learning rate")
+    parser.add_argument("--gamma", type=float, default=0.99, help="Gamma")
     args = parser.parse_args()
 
     num_episodes = args.num_episodes
@@ -32,20 +39,31 @@ if __name__ == "__main__":
 
     env = gym.make(env_name)
     env = TimeLimit(env, max_episode_steps=args.max_steps)
-    env = environment_dict[env_name](env)
+    
+    if env_name in environment_dict:
+        env = environment_dict[env_name](env)
+    else:
+        raise KeyError(f"Ambiente {env_name} não encontrado no environment_dict.")
 
-    agent = QLearningAgentLinear(env, learning_rate = learning_rate, epsilon_decay_rate = epsilon_decay_rate, gamma = gamma)
+    agent = QLearningAgentLinear(env, 
+                                 learning_rate=learning_rate, 
+                                 epsilon_decay_rate=epsilon_decay_rate, 
+                                 gamma=gamma)
+    
     penalties_per_episode, rewards_per_episode, cumulative_successful_episodes = agent.train(num_episodes)
     agent.save(args.env_name + "-lql-agent.pkl")
 
+    # Plotagem
+    plt.figure(figsize=(12, 8))
+    
     plt.subplot(2, 2, 1)
-    plt.plot(savgol_filter(penalties_per_episode, 111, 2))
+    plt.plot(savgol_filter(penalties_per_episode, 101, 2)) # Suavização 101
     plt.title(f"Penalties ({args.env_name})")
 
     plt.subplot(2, 2, 2)
-    plt.plot(savgol_filter(rewards_per_episode, 111, 2))
+    plt.plot(savgol_filter(rewards_per_episode, 101, 2)) # Suavização 101
     plt.title(f"Rewards ({args.env_name})")
-
+    
     plt.subplot(2, 2, 3)
     plt.plot(cumulative_successful_episodes)
     plt.title(f"Successful episodes ({args.env_name})")
@@ -54,5 +72,8 @@ if __name__ == "__main__":
     plt.plot(agent.epsilon_history)
     plt.title(f"Epsilon ({args.env_name})")
 
+    plt.tight_layout()
     plt.savefig(args.env_name + "-lql-results.png")
     plt.close()
+
+    print(f"Treinamento concluído para {env_name}. Gráficos salvos.")

@@ -9,12 +9,14 @@ from taxi_environment import TaxiEnvironment
 from blackjack_environment import BlackjackEnvironment
 from cliffwalking_environment import CliffWalkingEnvironment
 from frozenlake_environment import FrozenLakeEnvironment
+from mountaincar_environment import MountainCarEnvironment
 
 environment_dict = {
     "Blackjack-v1": BlackjackEnvironment,
     "Taxi-v3": TaxiEnvironment,
     "CliffWalking-v1": CliffWalkingEnvironment,
-    "FrozenLake-v1": FrozenLakeEnvironment
+    "FrozenLake-v1": FrozenLakeEnvironment,
+    "MountainCar-v0": MountainCarEnvironment
 }
 
 if __name__ == "__main__":
